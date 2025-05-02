@@ -16,28 +16,28 @@ namespace mincpp
         static std::map<uint32_t, const char*> messageByCode;
 
         std::call_once(messagesInitialization, []()
-            {
-                ADD_MESSAGE(messageByCode, EXCEPTION_ACCESS_VIOLATION);
-                ADD_MESSAGE(messageByCode, EXCEPTION_ARRAY_BOUNDS_EXCEEDED);
-                ADD_MESSAGE(messageByCode, EXCEPTION_BREAKPOINT);
-                ADD_MESSAGE(messageByCode, EXCEPTION_DATATYPE_MISALIGNMENT);
-                ADD_MESSAGE(messageByCode, EXCEPTION_FLT_DENORMAL_OPERAND);
-                ADD_MESSAGE(messageByCode, EXCEPTION_FLT_DIVIDE_BY_ZERO);
-                ADD_MESSAGE(messageByCode, EXCEPTION_FLT_INEXACT_RESULT);
-                ADD_MESSAGE(messageByCode, EXCEPTION_FLT_INVALID_OPERATION);
-                ADD_MESSAGE(messageByCode, EXCEPTION_FLT_OVERFLOW);
-                ADD_MESSAGE(messageByCode, EXCEPTION_FLT_STACK_CHECK);
-                ADD_MESSAGE(messageByCode, EXCEPTION_FLT_UNDERFLOW);
-                ADD_MESSAGE(messageByCode, EXCEPTION_ILLEGAL_INSTRUCTION);
-                ADD_MESSAGE(messageByCode, EXCEPTION_IN_PAGE_ERROR);
-                ADD_MESSAGE(messageByCode, EXCEPTION_INT_DIVIDE_BY_ZERO);
-                ADD_MESSAGE(messageByCode, EXCEPTION_INT_OVERFLOW);
-                ADD_MESSAGE(messageByCode, EXCEPTION_INVALID_DISPOSITION);
-                ADD_MESSAGE(messageByCode, EXCEPTION_NONCONTINUABLE_EXCEPTION);
-                ADD_MESSAGE(messageByCode, EXCEPTION_PRIV_INSTRUCTION);
-                ADD_MESSAGE(messageByCode, EXCEPTION_SINGLE_STEP);
-                ADD_MESSAGE(messageByCode, EXCEPTION_STACK_OVERFLOW);
-            });
+        {
+            ADD_MESSAGE(messageByCode, EXCEPTION_ACCESS_VIOLATION);
+            ADD_MESSAGE(messageByCode, EXCEPTION_ARRAY_BOUNDS_EXCEEDED);
+            ADD_MESSAGE(messageByCode, EXCEPTION_BREAKPOINT);
+            ADD_MESSAGE(messageByCode, EXCEPTION_DATATYPE_MISALIGNMENT);
+            ADD_MESSAGE(messageByCode, EXCEPTION_FLT_DENORMAL_OPERAND);
+            ADD_MESSAGE(messageByCode, EXCEPTION_FLT_DIVIDE_BY_ZERO);
+            ADD_MESSAGE(messageByCode, EXCEPTION_FLT_INEXACT_RESULT);
+            ADD_MESSAGE(messageByCode, EXCEPTION_FLT_INVALID_OPERATION);
+            ADD_MESSAGE(messageByCode, EXCEPTION_FLT_OVERFLOW);
+            ADD_MESSAGE(messageByCode, EXCEPTION_FLT_STACK_CHECK);
+            ADD_MESSAGE(messageByCode, EXCEPTION_FLT_UNDERFLOW);
+            ADD_MESSAGE(messageByCode, EXCEPTION_ILLEGAL_INSTRUCTION);
+            ADD_MESSAGE(messageByCode, EXCEPTION_IN_PAGE_ERROR);
+            ADD_MESSAGE(messageByCode, EXCEPTION_INT_DIVIDE_BY_ZERO);
+            ADD_MESSAGE(messageByCode, EXCEPTION_INT_OVERFLOW);
+            ADD_MESSAGE(messageByCode, EXCEPTION_INVALID_DISPOSITION);
+            ADD_MESSAGE(messageByCode, EXCEPTION_NONCONTINUABLE_EXCEPTION);
+            ADD_MESSAGE(messageByCode, EXCEPTION_PRIV_INSTRUCTION);
+            ADD_MESSAGE(messageByCode, EXCEPTION_SINGLE_STEP);
+            ADD_MESSAGE(messageByCode, EXCEPTION_STACK_OVERFLOW);
+        });
 
         auto iter = messageByCode.find(exCode);
         if (iter != messageByCode.end())

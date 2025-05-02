@@ -7,7 +7,7 @@
 
 namespace mincpp
 {
-    void Win32Errors::AppendErrorMessage(
+    std::ostream& Win32Errors::AppendErrorMessage(
         uint32_t errCode,
         const char* funcName,
         std::ostream& oss)
@@ -21,7 +21,7 @@ namespace mincpp
 
         HRESULT hr = HRESULT_FROM_WIN32(errCode);
         _com_error err(hr);
-        oss << ": " << Win32ApiStrings::ToUtf8(err.ErrorMessage());
+        return oss << ": " << Win32ApiStrings::ToUtf8(err.ErrorMessage());
     }
 
     std::string Win32Errors::GetErrorMessage(uint32_t errCode, const char* funcName)

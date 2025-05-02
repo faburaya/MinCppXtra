@@ -21,5 +21,7 @@ namespace mincpp
 		/// Creates the scope.
 		/// </summary>
 		SehTranslationScope();
+
+		~SehTranslationScope();
 	};
 }

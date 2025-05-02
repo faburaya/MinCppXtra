@@ -33,4 +33,6 @@ namespace mincpp
         : m_pimpl(new SehTranslationScope::Impl())
     {
     }
+
+    SehTranslationScope::~SehTranslationScope() = default;
 }

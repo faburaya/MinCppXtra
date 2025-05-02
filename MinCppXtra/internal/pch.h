@@ -11,8 +11,20 @@
 #include "framework.h"
 #include <windows.h>
 
+#undef max
+
 #define NOT_OK(call) (call) == FALSE
 #define OK(call) (call) == TRUE
 #define NAMEOF(x) #x
+
+namespace mincpp
+{
+	/// <summary>
+	/// Gets a handle for this process that can be used as process handle for some Win32 API calls.
+	/// See https://learn.microsoft.com/en-us/windows/win32/api/dbghelp/nf-dbghelp-syminitialize#parameters.
+	/// </summary>
+	/// <returns>A handle for the current process.</returns>
+	HANDLE GetThisProcessHandle();
+}
 
 #endif //PCH_H

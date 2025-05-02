@@ -3,12 +3,15 @@
 namespace mincpp
 {
     /// <summary>
-    /// 
+    /// Helper for printing in the console.
     /// </summary>
     class Console
     {
     public:
 
+        /// <summary>
+        /// Gathers ANSI color codes for the background.
+        /// </summary>
         struct Background
         {
         private:
@@ -36,13 +39,16 @@ namespace mincpp
             const char* BrightWhite() const { return m_enabled ? "\033[107m" : ""; }
 
             /// <summary>
-            /// 
+            /// Creates an instance of this class.
             /// </summary>
-            /// <param name="enabled"></param>
-            Background(bool enabled)
+            /// <param name="enabled">Set to false if you wish to disable color output.</param>
+            Background(bool enabled = true)
                 : m_enabled(enabled) {}
         };
 
+        /// <summary>
+        /// Gathers ANSI color codes for the text.
+        /// </summary>
         class Color
         {
         private:
@@ -71,9 +77,9 @@ namespace mincpp
             const char* BrightWhite() const { return m_enabled ? "\033[97m" : ""; }
 
             /// <summary>
-            /// 
+            /// Creates an instance of this class.
             /// </summary>
-            /// <param name="enabled"></param>
+            /// <param name="enabled">Set to false if you wish to disable color output.</param>
             Color(bool enabled)
                 : m_enabled(enabled) {}
         };

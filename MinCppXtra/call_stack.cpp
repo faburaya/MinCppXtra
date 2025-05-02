@@ -33,7 +33,7 @@ namespace mincpp
         BOOL success =
             StackWalk64(
                 IMAGE_FILE_MACHINE_AMD64,
-                GetCurrentProcess(),
+                GetThisProcessHandle(),
                 GetCurrentThread(),
                 &frame,
                 (void*)context,
@@ -79,7 +79,7 @@ namespace mincpp
         symbol->MaxNameLen = MAX_SYM_NAME;
 
         DWORD64 d64;
-        if (NOT_OK(SymFromAddrW(GetCurrentProcess(), frame.AddrPC.Offset, &d64, symbol)))
+        if (NOT_OK(SymFromAddrW(GetThisProcessHandle(), frame.AddrPC.Offset, &d64, symbol)))
         {
             return { GetLastError(), std::string() };
         }
@@ -91,7 +91,7 @@ namespace mincpp
         DWORD d32;
         IMAGEHLP_LINEW64 line{};
         line.SizeOfStruct = sizeof line;
-        if (OK(SymGetLineFromAddrW64(GetCurrentProcess(), frame.AddrPC.Offset, &d32, &line)))
+        if (OK(SymGetLineFromAddrW64(GetThisProcessHandle(), frame.AddrPC.Offset, &d32, &line)))
         {
             oss << std::endl
                 << Console::Color(isConsole).BrightBlack()

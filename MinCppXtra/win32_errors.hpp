@@ -9,7 +9,7 @@ namespace mincpp
 	{
     public:
 
-        static void AppendErrorMessage(
+        static std::ostream& AppendErrorMessage(
             uint32_t errCode,
             const char* funcName,
             std::ostream& oss);

@@ -25,15 +25,16 @@ namespace mincpp
             HANDLE curProcessHandle = GetCurrentProcess();
 
             if (NOT_OK(DuplicateHandle(
-                curProcessHandle,
-                curProcessHandle,
-                curProcessHandle,
-                &handle,
-                0,
-                FALSE,
-                DUPLICATE_SAME_ACCESS)))
+                    curProcessHandle,
+                    curProcessHandle,
+                    curProcessHandle,
+                    &handle,
+                    0,
+                    FALSE,
+                    DUPLICATE_SAME_ACCESS)))
             {
                 ReportLastError(NAMEOF(SymInitialize));
+                handle = curProcessHandle;
             }
         });
 

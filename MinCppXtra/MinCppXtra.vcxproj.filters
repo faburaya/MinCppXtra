@@ -45,6 +45,9 @@
     <ClInclude Include="console.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="traceable_exception.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -69,6 +72,9 @@
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="console.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="traceable_exception.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>

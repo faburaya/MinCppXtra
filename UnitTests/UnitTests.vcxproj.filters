@@ -8,9 +8,14 @@
     <ClCompile Include="win32_api_strings_tests.cpp">
       <Filter>tests</Filter>
     </ClCompile>
+    <ClCompile Include="utils.cpp" />
+    <ClCompile Include="traceable_exception_tests.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
+    <ClInclude Include="utils.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -1,13 +1,13 @@
 #pragma once
 
-#include <stdexcept>
+#include "traceable_exception.hpp"
 
 namespace mincpp
 {
 	/// <summary>
 	/// Represents a Win32 exception that has been translated from SEH to C++.
 	/// </summary>
-	class Win32Exception : public std::runtime_error
+	class Win32Exception : public TraceableException
 	{
 	public:
 
@@ -18,6 +18,6 @@ namespace mincpp
 		/// This is provided by the caught Win32 exception.
 		/// (The erased type is PEXCEPTION_POINTERS).
 		/// </param>
-		Win32Exception(void* exceptionPointers);
+		Win32Exception(const void* exceptionPointers);
 	};
 }

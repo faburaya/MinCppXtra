@@ -1,6 +1,8 @@
 #include "internal/pch.h"
+
 #include "call_stack.hpp"
 #include "console.hpp"
+#include "traceable_exception.hpp"
 #include "win32_api_strings.hpp"
 #include "win32_errors.hpp"
 
@@ -9,6 +11,7 @@
 #include <mutex>
 #include <regex>
 #include <sstream>
+#include <utility>
 #include <vector>
 
 #include <comdef.h>
@@ -104,10 +107,72 @@ namespace mincpp
         return { ERROR_SUCCESS, oss.str() };
     }
 
-    static std::string CreateStackTrace(
-        const std::vector<ResolvedFrame>::const_iterator& framesBegin,
-        const std::vector<ResolvedFrame>::const_iterator& framesEnd,
-        bool isConsole)
+    static std::vector<ResolvedFrame> FilterFrames(const std::vector<ResolvedFrame>& frames)
+    {
+        static const auto bottomIrrelevantSymbols =
+            std::to_array<const char*>(
+            {
+                "__scrt_common_main",
+                "mainCRTStartup",
+                "BaseThreadInitThunk",
+                "RtlUserThreadStart",
+            });
+
+        // drop irrelevant frames in the bottom of the stack:
+        auto revIterBegin = frames.crbegin();
+        while (revIterBegin != frames.crend() &&
+            std::any_of(
+                bottomIrrelevantSymbols.cbegin(),
+                bottomIrrelevantSymbols.cend(),
+                [&revIterBegin](const char* name) {
+                    return revIterBegin
+                        ->description.find(name) != std::string::npos;
+                }))
+        {
+            ++revIterBegin;
+        }
+
+        static const auto topIrrelevantSymbols =
+            std::to_array<const char*>(
+            {
+                NAMEOF(mincpp::CallStack::GetTrace),
+                NAMEOF(mincpp::TraceableException::),
+                "::catch$",
+                "_CxxFrameHandler",
+                "RtlCaptureContext",
+            });
+
+        // drop irrelevant frames on top of the stack:
+        int count = 0;
+        int matchCount = 0;
+        auto iterBegin = frames.cbegin();
+        auto iterLastMatch = iterBegin;
+        const auto iterEnd = revIterBegin.base();
+        for (auto iter = iterBegin; iter != iterEnd; ++iter, ++count)
+        {
+            if (std::any_of(topIrrelevantSymbols.cbegin(), topIrrelevantSymbols.cend(),
+                [&iter](const char* name) {
+                    return iter->status == ERROR_INVALID_ADDRESS ||
+                        iter->description.find(name) != std::string::npos;
+                }))
+            {
+                iterLastMatch = iter;
+                ++matchCount;
+            }
+
+            // if more than a few mismatches, then stop dropping frames:
+            if (count - matchCount > 2)
+            {
+                iterBegin = ++iterLastMatch;
+                break;
+            }
+        }
+
+        return std::vector<ResolvedFrame>(iterBegin, iterEnd);
+    }
+
+    static std::string SerializeStackTrace(
+        const std::vector<ResolvedFrame>& frames, bool isConsole)
     {
         std::regex mangledLambdaRegEx("lambda_\\w+");
         std::ostringstream oss;
@@ -115,11 +180,9 @@ namespace mincpp
         int idx = 0;
         uint32_t prevStatus = ERROR_SUCCESS;
 
-        for (auto iter = framesBegin; iter != framesEnd; ++iter)
+        for (const auto& frame : frames)
         {
-            const ResolvedFrame& frame = *iter;
-
-            if (frame.status == ERROR_MOD_NOT_FOUND
+            if (frame.status != ERROR_SUCCESS
                 && prevStatus == frame.status)
             {
                 continue;
@@ -134,11 +197,11 @@ namespace mincpp
                 break;
 
             case ERROR_MOD_NOT_FOUND:
-                oss << "[managed code?] cannot resolve symbol for frame(s)";
+                oss << "[.NET managed?] cannot resolve symbol for frame(s)";
                 break;
 
             default:
-                oss << "cannot resolve symbol - ";
+                oss << "cannot resolve symbol for frame(s) - ";
                 Win32Errors::AppendErrorMessage(frame.status, nullptr, oss);
                 break;
             }
@@ -155,11 +218,10 @@ namespace mincpp
         return std::regex_replace(oss.str(), mangledLambdaRegEx, "lambda");
     }
 
-    std::string CallStack::GetTrace(bool isConsole)
+    std::string CallStack::GetTrace(const void* currentContextHandle, bool isConsole)
     {
-        CONTEXT currentContext;
-        RtlCaptureContext(&currentContext);
-        std::vector<STACKFRAME> allStackFrames = BackTraceStackFrames(&currentContext);
+        std::vector<STACKFRAME> allStackFrames =
+            BackTraceStackFrames(static_cast<const CONTEXT*>(currentContextHandle));
 
         std::vector<ResolvedFrame> resolvedFrames;
         resolvedFrames.reserve(allStackFrames.size());
@@ -173,35 +235,14 @@ namespace mincpp
                 return Resolve(frame, isConsole);
             });
 
-        static std::array<const char*, 5> irrelevantSymbols =
-        {
-            "invoke_main",
-            "__scrt_common_main",
-            "mainCRTStartup",
-            "BaseThreadInitThunk",
-            "RtlUserThreadStart",
-        };
+        const auto filteredFrames = FilterFrames(resolvedFrames);
+        return SerializeStackTrace(filteredFrames, isConsole);
+    }
 
-        while (!resolvedFrames.empty() &&
-            std::any_of(
-                irrelevantSymbols.cbegin(),
-                irrelevantSymbols.cend(),
-                [&resolvedFrames](const std::string & name) {
-                    return resolvedFrames.back()
-                        .description.find(name) != std::string::npos;
-                }))
-        {
-            resolvedFrames.pop_back();
-        }
-
-        const char* thisFrameName = NAMEOF(mincpp::CallStack::GetTrace);
-        int skipCount =
-            (resolvedFrames.front()
-                .description.find(thisFrameName) != std::string::npos) ? 1 : 0;
-
-        return CreateStackTrace(
-            resolvedFrames.cbegin() + skipCount,
-            resolvedFrames.cend(),
-            isConsole);
+    std::string CallStack::GetTrace(bool isConsole)
+    {
+        CONTEXT currentContext;
+        RtlCaptureContext(&currentContext);
+        return GetTrace(&currentContext, isConsole);
     }
 }

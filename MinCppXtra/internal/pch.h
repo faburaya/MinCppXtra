@@ -11,6 +11,7 @@
 #include "framework.h"
 #include <windows.h>
 
+#undef min
 #undef max
 
 #define NOT_OK(call) (call) == FALSE

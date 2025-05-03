@@ -111,11 +111,11 @@ namespace mincpp
         return oss.str();
     }
 
-    Win32Exception::Win32Exception(void* exceptionPointers)
-        : std::runtime_error(
+    Win32Exception::Win32Exception(const void* exceptionPointers)
+        : TraceableException(
             CreateExceptionMessage(
-                static_cast<const EXCEPTION_POINTERS*>(exceptionPointers)->ExceptionRecord))
+                static_cast<const EXCEPTION_POINTERS*>(exceptionPointers)->ExceptionRecord),
+            static_cast<const EXCEPTION_POINTERS*>(exceptionPointers)->ContextRecord)
     {
-        //exceptionContext = *(ptr->ContextRecord);
     }
 }

@@ -12,6 +12,9 @@
     <ClCompile Include="traceable_exception_tests.cpp">
       <Filter>tests</Filter>
     </ClCompile>
+    <ClCompile Include="win32_exception_tests.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />

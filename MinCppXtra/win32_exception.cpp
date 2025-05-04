@@ -93,7 +93,7 @@ namespace mincpp
             break;
         }
 
-        oss << " (Win32 structured exception code 0x" << std::hex << exCode << ')';
+        oss << " (code 0x" << std::hex << exCode << ')';
     }
 
     static std::string CreateExceptionMessage(EXCEPTION_RECORD* exRecord)

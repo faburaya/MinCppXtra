@@ -1,7 +1,8 @@
 #include "pch.h"
+#include "utils.hpp"
+
 #include <MinCppXtra/call_stack.hpp>
 #include <MinCppXtra/call_stack_access_scope.hpp>
-#include "utils.hpp"
 
 #include <string>
 

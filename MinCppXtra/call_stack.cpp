@@ -69,54 +69,87 @@ namespace mincpp
     struct ResolvedFrame
     {
         uint32_t status;
-        std::string description;
+        std::string function;
+        std::string fileName;
+        uint32_t lineNumber;
     };
 
-    static ResolvedFrame Resolve(const STACKFRAME& frame, bool isConsole)
+    static ResolvedFrame Resolve(const STACKFRAME& frame)
     {
-        std::ostringstream oss;
-
         char buffer[sizeof(SYMBOL_INFOW) + MAX_SYM_NAME * sizeof(wchar_t)]{};
         SYMBOL_INFOW* symbol = reinterpret_cast<SYMBOL_INFOW*>(buffer);
         symbol->SizeOfStruct = sizeof * symbol;
         symbol->MaxNameLen = MAX_SYM_NAME;
 
         DWORD64 d64;
+        ResolvedFrame result;
         if (NOT_OK(SymFromAddrW(GetThisProcessHandle(), frame.AddrPC.Offset, &d64, symbol)))
         {
-            return { GetLastError(), std::string() };
+            result.status = GetLastError();
+            return result;
         }
 
-        oss << Console::Color(isConsole).Yellow()
-            << Win32ApiStrings::ToUtf8(symbol->Name, symbol->NameLen)
-            << Console::Color(isConsole).Reset();
+        result.status = ERROR_SUCCESS;
+        result.function = Win32ApiStrings::ToUtf8(symbol->Name, symbol->NameLen);
 
         DWORD d32;
         IMAGEHLP_LINEW64 line{};
         line.SizeOfStruct = sizeof line;
         if (OK(SymGetLineFromAddrW64(GetThisProcessHandle(), frame.AddrPC.Offset, &d32, &line)))
         {
-            oss << std::endl
-                << Console::Color(isConsole).BrightBlack()
-                << "  in "
-                << Win32ApiStrings::ToUtf8(line.FileName)
-                << ", line " << line.LineNumber
-                << Console::Color(isConsole).Reset();
+            result.fileName = Win32ApiStrings::ToUtf8(line.FileName);
+            result.lineNumber = line.LineNumber;
         }
 
-        return { ERROR_SUCCESS, oss.str() };
+        return result;
     }
 
     static std::vector<ResolvedFrame> FilterFrames(const std::vector<ResolvedFrame>& frames)
     {
-        static const auto bottomIrrelevantSymbols =
+        static const auto topIrrelevantSymbols =
             std::to_array<const char*>(
             {
-                "__scrt_common_main",
-                "mainCRTStartup",
-                "BaseThreadInitThunk",
-                "RtlUserThreadStart",
+                NAMEOF(mincpp::CallStack::GetTrace),
+                NAMEOF(mincpp::TraceableException::),
+                "_CxxFrameHandler",
+                "RtlCaptureContext",
             });
+
+        // drop irrelevant frames on top of the stack:
+        auto iterBegin = frames.cbegin();
+        for (int idx = 0, lastMatchIdx = -1, matchCount = 0; idx < frames.size(); ++idx)
+        {
+            auto& frame = frames[idx];
+
+            if (std::any_of(
+                    topIrrelevantSymbols.cbegin(),
+                    topIrrelevantSymbols.cend(),
+                    [&frame](const char* name) {
+                        return frame.status == ERROR_INVALID_ADDRESS ||
+                            frame.function.starts_with(name) ||
+                            frame.function.find("::catch$") != std::string::npos;
+                    }))
+            {
+                ++matchCount;
+                lastMatchIdx = idx;
+            }
+
+            int itemCount = idx + 1;
+            if (itemCount >= matchCount + 2)
+            {
+                iterBegin += ++lastMatchIdx;
+                break;
+            }
+        }
+
+        static const auto bottomIrrelevantSymbols =
+            std::to_array<const char*>(
+                {
+                    "__scrt_common_main",
+                    "mainCRTStartup",
+                    "BaseThreadInitThunk",
+                    "RtlUserThreadStart",
+                });
 
         // drop irrelevant frames in the bottom of the stack:
         auto revIterBegin = frames.crbegin();
@@ -125,49 +158,13 @@ namespace mincpp
                 bottomIrrelevantSymbols.cbegin(),
                 bottomIrrelevantSymbols.cend(),
                 [&revIterBegin](const char* name) {
-                    return revIterBegin
-                        ->description.find(name) != std::string::npos;
+                    return revIterBegin->function.starts_with(name);
                 }))
         {
             ++revIterBegin;
         }
 
-        static const auto topIrrelevantSymbols =
-            std::to_array<const char*>(
-            {
-                NAMEOF(mincpp::CallStack::GetTrace),
-                NAMEOF(mincpp::TraceableException::),
-                "::catch$",
-                "_CxxFrameHandler",
-                "RtlCaptureContext",
-            });
-
-        // drop irrelevant frames on top of the stack:
-        int count = 0;
-        int matchCount = 0;
-        auto iterBegin = frames.cbegin();
-        auto iterLastMatch = iterBegin;
-        const auto iterEnd = revIterBegin.base();
-        for (auto iter = iterBegin; iter != iterEnd; ++iter, ++count)
-        {
-            if (std::any_of(topIrrelevantSymbols.cbegin(), topIrrelevantSymbols.cend(),
-                [&iter](const char* name) {
-                    return iter->status == ERROR_INVALID_ADDRESS ||
-                        iter->description.find(name) != std::string::npos;
-                }))
-            {
-                iterLastMatch = iter;
-                ++matchCount;
-            }
-
-            // if more than a few mismatches, then stop dropping frames:
-            if (count - matchCount > 2)
-            {
-                iterBegin = ++iterLastMatch;
-                break;
-            }
-        }
-
+        auto iterEnd = revIterBegin.base();
         return std::vector<ResolvedFrame>(iterBegin, iterEnd);
     }
 
@@ -193,7 +190,16 @@ namespace mincpp
             switch (frame.status)
             {
             case ERROR_SUCCESS:
-                oss << frame.description;
+                oss << Console::Color(isConsole).Yellow()
+                    << frame.function;
+
+                if (!frame.fileName.empty())
+                {
+                    oss << std::endl
+                        << Console::Color(isConsole).BrightBlack()
+                        << "  in " << frame.fileName
+                        << ", line " << frame.lineNumber;
+                }
                 break;
 
             case ERROR_MOD_NOT_FOUND:
@@ -232,7 +238,7 @@ namespace mincpp
             std::back_inserter(resolvedFrames),
             [isConsole](const STACKFRAME& frame)
             {
-                return Resolve(frame, isConsole);
+                return Resolve(frame);
             });
 
         const auto filteredFrames = FilterFrames(resolvedFrames);

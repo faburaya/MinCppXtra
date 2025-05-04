@@ -1,9 +1,6 @@
 #include "pch.h"
 #include "utils.hpp"
 
-#include <Windows.h>
-#include <iostream>
-
 namespace unit_tests
 {
 	int CountMatches(const std::string_view& x, const std::string& text)
@@ -17,16 +14,4 @@ namespace unit_tests
 		}
 		return count;
 	}
-
-	/// <summary>
-	/// Performs initialization tasks for this program.
-	/// </summary>
-	struct StaticInitializer {
-		StaticInitializer() {
-			SetConsoleOutputCP(CP_UTF8);
-			std::cout << "Static initializer called!" << std::endl;
-		}
-	};
-
-	static StaticInitializer initializer;
 }

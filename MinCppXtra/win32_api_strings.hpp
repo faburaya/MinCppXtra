@@ -1,3 +1,16 @@
+/*
+ * MinCppXtra - A minimalistic C++ utility library
+ *
+ * Author: Felipe Vieira Aburaya, 2025
+ * License: The Unlicense (public domain)
+ * Repository: https://github.com/faburaya/MinCppXtra
+ *
+ * This software is released into the public domain.
+ * You can freely use, modify, and distribute it without restrictions.
+ *
+ * For more details, see: https://unlicense.org
+ */
+
 #pragma once
 
 #include <string>
@@ -10,6 +23,14 @@ namespace mincpp
 	class Win32ApiStrings
 	{
 	public:
+
+		/// <summary>
+		/// Performs initialization tasks for the application.
+		/// </summary>
+		struct StaticInitializer
+		{
+			StaticInitializer();
+		};
 
 		/// <summary>
 		/// Transcodes UTF-16 text to UTF-8.
@@ -51,5 +72,9 @@ namespace mincpp
 		/// </param>
 		/// <returns>A UTF-16 encoded wide-string.</returns>
 		static std::wstring ToUtf16(const char* utf8str, size_t charCount);
+
+	private:
+
+		StaticInitializer s_initializer;
 	};
 }

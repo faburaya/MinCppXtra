@@ -49,6 +49,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(ProjectDir)\utfcpp;$(IncludePath)</IncludePath>
   </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -59,7 +60,6 @@
       <PrecompiledHeaderFile>internal/pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ExceptionHandling>Async</ExceptionHandling>
-      <LanguageStandard_C>stdc11</LanguageStandard_C>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -68,8 +68,15 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>kernel32.lib; dbghelp.lib;</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;dbghelp.lib;</AdditionalDependencies>
     </Lib>
+    <PostBuildEvent>
+      <Command>mkdir $(SolutionDir)\install\MinCppXtra\include\MinCppXtra\
+copy $(ProjectDir)\*.hpp $(SolutionDir)\install\MinCppXtra\include\MinCppXtra\
+mkdir $(SolutionDir)\install\MinCppXtra\lib\$(Platform)\$(Configuration)\
+copy $(TargetDir)\MinCppXtra.* $(SolutionDir)\install\MinCppXtra\lib\$(Platform)\$(Configuration)\
+</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -83,7 +90,6 @@
       <PrecompiledHeaderFile>internal/pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ExceptionHandling>Async</ExceptionHandling>
-      <LanguageStandard_C>stdc11</LanguageStandard_C>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -94,8 +100,15 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>kernel32.lib; dbghelp.lib;</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;dbghelp.lib;</AdditionalDependencies>
     </Lib>
+    <PostBuildEvent>
+      <Command>mkdir $(SolutionDir)\install\MinCppXtra\include\MinCppXtra\
+copy $(ProjectDir)\*.hpp $(SolutionDir)\install\MinCppXtra\include\MinCppXtra\
+mkdir $(SolutionDir)\install\MinCppXtra\lib\$(Platform)\$(Configuration)\
+copy $(TargetDir)\MinCppXtra.* $(SolutionDir)\install\MinCppXtra\lib\$(Platform)\$(Configuration)\
+</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="call_stack.hpp" />

@@ -37,9 +37,11 @@ namespace mincpp
 		{
 		}
 
-		Impl(const void* exceptionContextHandle)
-			: m_callStackTrace(
-				CallStack::GetTrace(exceptionContextHandle, TraceableException::s_useColorsOnStackTrace))
+		Impl(const void* exceptionContextHandle, bool isStackTraceEnabled)
+			: m_callStackTrace(isStackTraceEnabled
+				? CallStack::GetTrace(
+					exceptionContextHandle, TraceableException::s_useColorsOnStackTrace)
+				: "(disabled in this build)")
 		{
 		}
 
@@ -70,9 +72,11 @@ namespace mincpp
 	}
 
 	TraceableException::TraceableException(
-		const std::string& message, const void* exceptionContextHandle)
+		const std::string& message,
+		const void* exceptionContextHandle,
+		bool isStackTraceEnabled)
 		: std::runtime_error(message)
-		, m_pimpl(new Impl(exceptionContextHandle))
+		, m_pimpl(new Impl(exceptionContextHandle, isStackTraceEnabled))
 	{
 	}
 

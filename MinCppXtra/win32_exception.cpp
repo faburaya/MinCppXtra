@@ -124,11 +124,19 @@ namespace mincpp
         return oss.str();
     }
 
+#ifdef NDEBUG
+    // release build crashes when walking stack upon SEH translation
+#   define ENABLE_STACK_TRACE false
+#else
+#   define ENABLE_STACK_TRACE true
+#endif
+
     Win32Exception::Win32Exception(const void* exceptionPointers)
         : TraceableException(
             CreateExceptionMessage(
                 static_cast<const EXCEPTION_POINTERS*>(exceptionPointers)->ExceptionRecord),
-            static_cast<const EXCEPTION_POINTERS*>(exceptionPointers)->ContextRecord)
+            static_cast<const EXCEPTION_POINTERS*>(exceptionPointers)->ContextRecord,
+            ENABLE_STACK_TRACE)
     {
     }
 }

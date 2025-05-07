@@ -17,7 +17,7 @@
 
 namespace mincpp
 {
-    static void TranslateWin32Exception(unsigned int code, EXCEPTION_POINTERS* exceptionPointers)
+    static void __cdecl TranslateWin32Exception(unsigned int code, EXCEPTION_POINTERS* exceptionPointers)
     {
         throw Win32Exception(exceptionPointers);
     }

@@ -58,9 +58,13 @@ namespace mincpp
 		/// <param name="exceptionContextHandle">
 		/// The system handle for the stack context when the exception was thrown.
 		/// </param>
+		/// <param name="isStackTraceEnabled">
+		/// Whether the implementation is allowed to walk the call stack to produce a trace.
+		/// </param>
 		TraceableException(
 			const std::string& message,
-			const void* exceptionContextHandle);
+			const void* exceptionContextHandle,
+			bool isStackTraceEnabled = true);
 
 		virtual ~TraceableException();
 

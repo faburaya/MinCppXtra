@@ -12,6 +12,13 @@ namespace unit_tests
 		return number / 0;
 	}
 
+#ifdef NDEBUG
+	// release build crashes when walking stack upon SEH translation
+#   define HAS_STACK_TRACE false
+#else
+#   define HAS_STACK_TRACE true
+#endif
+
 	TEST(Win32Exception, SehExceptionTranslation)
 	{
 		try
@@ -25,7 +32,7 @@ namespace unit_tests
 		{
 			const char* line = NAMEOF(unit_tests::DividePerZero);
 			std::string cst = ex.GetCallStackTrace();
-			EXPECT_EQ(1, CountMatches(line, cst)) << cst;
+			EXPECT_EQ(HAS_STACK_TRACE ? 1 : 0, CountMatches(line, cst)) << cst;
 			return;
 		}
 		FAIL() << "Win32 exception has not been translated!";

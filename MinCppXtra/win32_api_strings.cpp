@@ -40,7 +40,7 @@ namespace mincpp
         return ToUtf8(utf16str, wcslen(utf16str));
     }
 
-    std::wstring Win32ApiStrings::ToUtf16(const std::u8string_view utf8str)
+    std::wstring Win32ApiStrings::ToUtf16(const std::string_view utf8str)
     {
         std::u16string utf16str = utf8::utf8to16(utf8str);
         static_assert(sizeof(wchar_t) == sizeof(char16_t));
@@ -49,11 +49,17 @@ namespace mincpp
         return std::wstring(begin, end);
     }
 
+    std::wstring Win32ApiStrings::ToUtf16(const std::u8string_view utf8str)
+    {
+        static_assert(sizeof(char) == sizeof(char8_t));
+        const auto begin = reinterpret_cast<const char*>(utf8str.data());
+        const auto end = begin + utf8str.length();
+        return ToUtf16(std::string_view(begin, end));
+    }
+
     std::wstring Win32ApiStrings::ToUtf16(const char* utf8str, size_t charCount)
     {
-        const auto begin = reinterpret_cast<const char8_t*>(utf8str);
-        const auto end = begin + charCount;
-        return ToUtf16(std::u8string_view(begin, end));
+        return ToUtf16(std::string_view(utf8str, utf8str + charCount));
     }
 
     std::wstring Win32ApiStrings::ToUtf16(const char* utf8str)

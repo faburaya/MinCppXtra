@@ -34,6 +34,7 @@ namespace unit_tests
 				std::u8string_view(
 					reinterpret_cast<const char8_t*>(given))));
 
+		EXPECT_EQ(expected, mincpp::Win32ApiStrings::ToUtf16(std::string_view(given)));
 		EXPECT_EQ(expected, mincpp::Win32ApiStrings::ToUtf16(given));
 		EXPECT_EQ(expected, mincpp::Win32ApiStrings::ToUtf16(given, 19));
 	}

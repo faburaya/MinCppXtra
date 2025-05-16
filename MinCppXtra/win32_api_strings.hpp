@@ -54,6 +54,13 @@ namespace mincpp
 		/// </summary>
 		/// <param name="utf8str">A string with UTF-8 encoded text.</param>
 		/// <returns>A UTF-16 encoded wide-string.</returns>
+		static std::wstring ToUtf16(const std::string_view utf8str);
+
+		/// <summary>
+		/// Transcodes UTF-8 text to UTF-16.
+		/// </summary>
+		/// <param name="utf8str">A string with UTF-8 encoded text.</param>
+		/// <returns>A UTF-16 encoded wide-string.</returns>
 		static std::wstring ToUtf16(const std::u8string_view utf8str);
 
 		/// <summary>

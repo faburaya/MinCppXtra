@@ -74,7 +74,7 @@
       <Command>mkdir $(SolutionDir)\install\MinCppXtra\include\MinCppXtra\
 copy $(ProjectDir)\*.hpp $(SolutionDir)\install\MinCppXtra\include\MinCppXtra\
 mkdir $(SolutionDir)\install\MinCppXtra\lib\$(Platform)\$(Configuration)\
-copy $(TargetDir)\MinCppXtra.* $(SolutionDir)\install\MinCppXtra\lib\$(Platform)\$(Configuration)\
+robocopy $(TargetDir) $(SolutionDir)\install\MinCppXtra\lib\$(Platform)\$(Configuration) MinCppXtra.* /E /XF *.idb || exit 0
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -106,7 +106,7 @@ copy $(TargetDir)\MinCppXtra.* $(SolutionDir)\install\MinCppXtra\lib\$(Platform)
       <Command>mkdir $(SolutionDir)\install\MinCppXtra\include\MinCppXtra\
 copy $(ProjectDir)\*.hpp $(SolutionDir)\install\MinCppXtra\include\MinCppXtra\
 mkdir $(SolutionDir)\install\MinCppXtra\lib\$(Platform)\$(Configuration)\
-copy $(TargetDir)\MinCppXtra.* $(SolutionDir)\install\MinCppXtra\lib\$(Platform)\$(Configuration)\
+robocopy $(TargetDir) $(SolutionDir)\install\MinCppXtra\lib\$(Platform)\$(Configuration) MinCppXtra.* /E /XF *.idb || exit 0
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
